@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ControlCheck — AI agent controls self-audit · by vittoriali</title>
+<meta name="description" content="A 5-minute self-audit of the controls around your AI agents: oversight, kill switch, security, audit trail, cost guardrails, incident response. By vittoriali.">
+<style>
+:root{--bg:#0d1117;--panel:#161b22;--border:#30363d;--text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--yellow:#d29922;--red:#f85149;--orange:#db6d28}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.55}
+.wrap{max-width:720px;margin:0 auto;padding:24px 18px 64px}
+header.top{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--border);padding-bottom:14px;margin-bottom:26px}
+.brand{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700;font-size:1.25rem}
+.brand .by{display:block;font-size:.72rem;color:var(--muted);font-weight:400}
+.tag{font-size:.75rem;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:3px 10px}
+h1{font-size:1.7rem;margin:.2em 0 .4em}h2{font-size:1.15rem;margin:1.6em 0 .5em}p{color:var(--muted)}p strong{color:var(--text)}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:20px;margin:16px 0}
+.btn{display:inline-block;background:var(--accent);color:#04121f;border:0;border-radius:8px;padding:12px 26px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:10px}
+.btn:hover{filter:brightness(1.1)}.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.answers{display:grid;gap:10px;margin-top:14px}
+.answers button{text-align:left;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:.95rem;cursor:pointer}
+.answers button:hover{border-color:var(--accent)}.answers button small{display:block;color:var(--muted);font-size:.78rem}
+.answers button .k{font-family:ui-monospace,monospace;color:var(--accent);margin-right:8px}
+.progress{height:8px;background:var(--panel);border-radius:99px;overflow:hidden;margin:6px 0 4px}
+.progress i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+.pmeta{display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted)}
+.domain-label{font-family:ui-monospace,monospace;font-size:.78rem;color:var(--accent);letter-spacing:.04em;text-transform:uppercase}
+.back{background:none;border:0;color:var(--muted);cursor:pointer;font-size:.85rem;padding:0;margin-top:14px}
+.score-hero{text-align:center;padding:8px 0 4px}
+.score-num{font-size:3.4rem;font-weight:800;font-family:ui-monospace,monospace}
+.grade{display:inline-block;font-size:.85rem;font-weight:700;border:1px solid var(--border);border-radius:8px;padding:4px 14px;margin-top:6px}
+.bar-row{margin:10px 0}.bar-row .lbl{display:flex;justify-content:space-between;font-size:.88rem;margin-bottom:4px}
+.bar{height:10px;background:var(--bg);border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;border-radius:99px}
+.fix{border-left:3px solid var(--orange);padding:8px 12px;margin:10px 0;background:var(--bg);border-radius:0 8px 8px 0}
+.fix .q{font-size:.9rem}.fix .f{font-size:.85rem;color:var(--muted)}.fix .d{font-family:ui-monospace,monospace;font-size:.72rem;color:var(--accent)}
+details{border:1px solid var(--border);border-radius:8px;margin:8px 0;background:var(--bg)}
+summary{cursor:pointer;padding:10px 14px;font-size:.9rem}details .in{padding:0 14px 12px;font-size:.85rem;color:var(--muted)}
+.cta{text-align:center;border:1px solid var(--accent);border-radius:12px;padding:26px 20px;margin-top:28px;background:linear-gradient(180deg,rgba(88,166,255,.08),transparent)}
+.cta h2{margin-top:0}.cta .btn{text-decoration:none}
+footer{margin-top:44px;border-top:1px solid var(--border);padding-top:14px;font-size:.8rem;color:var(--muted);display:flex;justify-content:space-between}
+.hidden{display:none}
+@media(max-width:520px){h1{font-size:1.4rem}.score-num{font-size:2.6rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div class="brand">ControlCheck<span class="by">by vittoriali</span></div>
+  <span class="tag">AI agent controls self-audit</span>
+</header>
+
+<!-- INTRO -->
+<section id="s-intro">
+  <h1>Are your AI agents actually under control?</h1>
+  <p><strong>BCG's latest report: 42% of companies expect to give agents real autonomy by 2030 — but only 5% have the full set of controls today.</strong> This 5-minute audit scores your setup across the 6 control domains agentic AI requires, then tells you exactly what to fix first.</p>
+  <div class="card">
+    <div class="pmeta"><span>6 control domains</span><span>24 questions</span><span>~5 minutes</span></div>
+    <div class="progress" aria-hidden="true"><i style="width:100%"></i></div>
+    <p style="font-size:.85rem;margin-bottom:0">Oversight · Kill switch · Security · Audit trail · Cost guardrails · Incident response</p>
+  </div>
+  <button class="btn" id="btn-start">Start the audit</button>
+  <p style="font-size:.8rem">Free. Nothing leaves your browser — the demo scores locally.</p>
+</section>
+
+<!-- QUIZ -->
+<section id="s-quiz" class="hidden" aria-live="polite">
+  <div class="pmeta"><span id="q-count"></span><span id="q-pct"></span></div>
+  <div class="progress"><i id="q-bar"></i></div>
+  <div class="card">
+    <div class="domain-label" id="q-domain"></div>
+    <h2 id="q-text" style="margin-top:.4em"></h2>
+    <div class="answers" id="q-answers" role="group" aria-label="Answer options"></div>
+  </div>
+  <button class="back" id="btn-back">← back</button>
+</section>
+
+<!-- RESULTS -->
+<section id="s-results" class="hidden">
+  <div class="score-hero">
+    <div class="score-num" id="r-score">–</div>
+    <div><span class="grade" id="r-grade">–</span></div>
+    <p id="r-verdict" style="max-width:520px;margin:12px auto 0"></p>
+  </div>
+  <h2>Scores by control domain</h2>
+  <div class="card" id="r-bars"></div>
+  <h2>Fix first — highest blast radius</h2>
+  <div id="r-fixes"></div>
+  <h2>Full breakdown</h2>
+  <div id="r-detail"></div>
+  <div class="cta">
+    <h2>The cost-guardrail control, done for you</h2>
+    <p>Per-key daily/monthly spend caps, hard 402 cutoffs at the gateway, a live meter, and an account kill switch — the boring infra this audit keeps flagging.</p>
+    <a class="btn" href="https://vittoriali.gumroad.com/l/tbhigv" rel="noopener">Get ShipSafe — presale $49 (→ $249)</a>
+    <p style="font-size:.8rem;margin-top:14px">Want the full remediation roadmap + policy templates? <strong>Controls Playbook — $29 one-time.</strong> Gumroad link added at launch.</p>
+  </div>
+  <button class="btn ghost" id="btn-retake">Retake the audit</button>
+</section>
+
+<footer><span>ControlCheck · by vittoriali</span><span>score locally · ship controls</span></footer>
+</div>
+
+<script>
+const DOMAINS=[
+{t:"Human oversight & autonomy gates",q:[
+["Can a human approve or stop high-impact agent actions (payments, emails, deploys) before they execute?","Add an approval gate on every irreversible action — even a Slack approve/deny button counts."],
+["Do you define which actions agents may take autonomously versus which need a human?","Write an explicit autonomy policy: list the autonomous actions; everything else requires approval."],
+["Is there a named human owner accountable for each agent in production?","Assign one owner per agent. 'The team' is not an owner."],
+["Do you review a sample of agent actions weekly for quality and drift?","Start a weekly 15-minute spot-check of 10 random agent actions; log what you find."]]},
+{t:"Rollback & kill switch",q:[
+["Can you halt all agents in under a minute if one goes rogue?","Build a single kill switch that revokes every agent key and credential at once. Test it."],
+["Can you roll back an agent to its previous prompt and config version?","Version every prompt and config; keep the last-known-good one restorable in one step."],
+["Do agents run with least-privilege credentials (no admin keys, no broad scopes)?","Scope each agent's credentials to exactly what its task needs. Rotate anything broader."],
+["Have you tested your incident shutdown procedure in the last 90 days?","Run a fire drill: simulate a rogue agent, time your shutdown, fix what was slow."]]},
+{t:"Security & data policy",q:[
+["Do you scan agent inputs and outputs for secrets, PII, or prompt-injection attempts?","Add input/output scanning — at minimum, redact secrets and PII before they reach logs."],
+["Is there a data-retention policy for prompts, tool outputs, and traces?","Define what you keep, for how long, and who can read it. Delete the rest."],
+["Are the third-party tools an agent can call allowlisted (not open-ended)?","Allowlist every tool an agent may call; block everything else by default."],
+["Do you know exactly which models and providers your agents call in production?","Inventory every model endpoint in the call path — including the ones added 'temporarily'."]]},
+{t:"Audit trail & attribution",q:[
+["Can you attribute every model call to a user, an agent, and a task?","Tag every call with user + agent + task IDs. If you can't answer 'who spent this?', you have no audit trail."],
+["Do you keep immutable logs of agent actions (what it did, not just what it said)?","Log tool calls and their arguments, not just chat transcripts. Actions are the audit trail."],
+["Could you replay an incident from logs alone, without asking the model what happened?","Store enough context per action (inputs, tool args, outputs) to reconstruct incidents offline."],
+["Are audit logs protected from the agents themselves (they can't edit or delete them)?","Write logs to storage the agent's credentials cannot modify. An agent that can edit its own audit trail has no audit trail."]]},
+{t:"Cost guardrails",q:[
+["Does every API key have a daily or monthly spend cap?","Set per-key daily and monthly caps now — the single highest-ROI control on this list."],
+["Do over-budget requests get hard-blocked, not just logged?","A cap that only alerts is a dashboard for a fire. Enforce a hard cutoff (HTTP 402) at the gateway."],
+["Can you see live spend per key, per agent, per task — right now?","Build or buy a live spend meter per key. Month-end invoices are not monitoring."],
+["Would a runaway loop be stopped automatically, or only when someone notices the bill?","Assume loops will happen. The control is automatic cutoff plus alert — not vigilance."]]},
+{t:"Incident response",q:[
+["Do you have a written runbook for 'the agent did something wrong'?","Write the one-pager: detect, contain (kill switch), assess, communicate, fix."],
+["Do you know who gets paged when an agent misbehaves at 3am?","Define the on-call rotation for agent incidents. 'Whoever sees it' is not a rotation."],
+["Do you track agent incidents and near-misses somewhere searchable?","Start an incident log — even a doc. Near-misses count; they're free lessons."],
+["Have you set a maximum blast radius (per-task spend or action limits)?","Cap what any single task or run can spend or do. Blast radius is a design choice."]]}
+];
+const SCALE=[["No",0],["Partially",1],["Mostly",2],["Yes, enforced",3]];
+const GRADE=v=>v>=80?"A":v>=65?"B":v>=50?"C":v>=35?"D":"F";
+const VERDICT={A:"Production-grade controls. Keep the spot-checks and re-audit quarterly.",B:"Solid foundation with real gaps — the fix-first list below is your quarter.",C:"Half-controlled. You are one bad loop away from an incident postmortem.",D:"Mostly uncontrolled. Treat the fix-first list as this week's work, not this quarter's.",F:"You are flying blind. Start with the kill switch and per-key spend caps — today."};
+const BCOL=v=>v>=80?"var(--green)":v>=65?"var(--accent)":v>=50?"var(--yellow)":v>=35?"var(--orange)":"var(--red)";
+
+let answers=DOMAINS.map(()=>[null,null,null,null]);
+let di=0, qi=0;
+const $=id=>document.getElementById(id);
+
+function show(id){["s-intro","s-quiz","s-results"].forEach(s=>$(s).classList.add("hidden"));$(id).classList.remove("hidden");window.scrollTo(0,0);}
+function renderQ(){
+  const total=24, done=di*4+qi;
+  $("q-count").textContent=`Question ${done+1} of ${total}`;
+  $("q-pct").textContent=Math.round(done/total*100)+"%";
+  $("q-bar").style.width=(done/total*100)+"%";
+  $("q-domain").textContent=DOMAINS[di].t;
+  $("q-text").textContent=DOMAINS[di].q[qi][0];
+  const box=$("q-answers"); box.innerHTML="";
+  SCALE.forEach(([label,val])=>{
+    const b=document.createElement("button");
+    b.innerHTML=`<span class="k">${val}</span>${label}<small>${["No control in place","Ad-hoc / inconsistent","Documented but not enforced","Enforced and tested"][val]}</small>`;
+    b.setAttribute("aria-label",`${label}: ${["No control in place","Ad-hoc / inconsistent","Documented but not enforced","Enforced and tested"][val]}`);
+    b.onclick=()=>{answers[di][qi]=val;advance();};
+    box.appendChild(b);
+  });
+  $("btn-back").style.visibility=(done===0)?"hidden":"visible";
+}
+function advance(){ if(qi<3){qi++;} else if(di<5){di++;qi=0;} else {results();return;} renderQ(); }
+function goBack(){ if(qi>0){qi--;} else if(di>0){di--;qi=3;} renderQ(); }
+
+function results(){
+  const ds=DOMAINS.map((d,i)=>{const s=answers[i].reduce((a,b)=>a+b,0)/12*100;return Math.round(s*10)/10;});
+  const overall=Math.round(ds.reduce((a,b)=>a+b,0)/ds.length*10)/10;
+  const grade=GRADE(overall);
+  $("r-score").textContent=overall;
+  $("r-score").style.color=BCOL(overall);
+  $("r-grade").textContent="Grade "+grade;
+  $("r-verdict").textContent=VERDICT[grade];
+  $("r-bars").innerHTML=DOMAINS.map((d,i)=>
+    `<div class="bar-row"><div class="lbl"><span>${d.t}</span><span>${ds[i]}</span></div><div class="bar"><i style="width:${ds[i]}%;background:${BCOL(ds[i])}"></i></div></div>`).join("");
+  const fixes=[];
+  DOMAINS.forEach((d,i)=>{ if(ds[i]<70){ d.q.forEach((q,j)=>{ if(answers[i][j]<=1) fixes.push({d:d.t,s:ds[i],q:q[0],f:q[1]}); }); }});
+  fixes.sort((a,b)=>a.s-b.s);
+  $("r-fixes").innerHTML=fixes.length?fixes.slice(0,5).map(f=>
+    `<div class="fix"><div class="d">${f.d} · scored ${f.s}</div><div class="q">${f.q}</div><div class="f">→ ${f.f}</div></div>`).join("")
+    :`<div class="card"><p style="margin:0">No critical gaps — every domain scored 70+. Re-audit quarterly; drift is the enemy.</p></div>`;
+  $("r-detail").innerHTML=DOMAINS.map((d,i)=>
+    `<details><summary><strong>${d.t}</strong> — ${ds[i]} <span style="color:${BCOL(ds[i])}">●</span></summary><div class="in">${d.q.map((q,j)=>`<p><strong>${["No","Partially","Mostly","Yes, enforced"][answers[i][j]]}</strong> — ${q[0]}</p>`).join("")}</div></details>`).join("");
+  show("s-results");
+}
+
+$("btn-start").onclick=()=>{answers=DOMAINS.map(()=>[null,null,null,null]);di=0;qi=0;show("s-quiz");renderQ();};
+$("btn-back").onclick=goBack;
+$("btn-retake").onclick=()=>show("s-intro");
+</script>
+</body>
+</html>
