@@ -8,4 +8,4 @@ The full product is available as a one-time purchase:
 
 **Get ControlCheck ($29 one-time):** https://vittoriali.gumroad.com/l/controlcheck-playbook
 
-by vittoriali
+by Haku
